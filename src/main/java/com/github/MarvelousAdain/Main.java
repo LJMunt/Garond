@@ -3,6 +3,9 @@ package com.github.MarvelousAdain;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.message.MessageBuilder;
+import org.javacord.api.entity.permission.PermissionState;
+import org.javacord.api.entity.permission.PermissionType;
+import org.javacord.api.entity.permission.PermissionsBuilder;
 
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -92,17 +95,24 @@ public class Main {
                             System.exit(0);
                         }
                     } else {
-                        for (int i = 1; i < line.length(); i++) {
-                            char charCheck = line.charAt(i);
-                            if (Character.isDigit(charCheck)) {
-                                numStr += charCheck;
+                        if (line.equalsIgnoreCase("/joinURL")) {
+                            PermissionsBuilder permissionsBuilder = new PermissionsBuilder();
+                            permissionsBuilder.setState(PermissionType.ADMINISTRATOR, PermissionState.ALLOWED);
+                            api.getServerTextChannelById(channelID).get().sendMessage(api.createBotInvite(permissionsBuilder.build()));
+                        } else {
+                            for (int i = 1; i < line.length(); i++) {
+                                char charCheck = line.charAt(i);
+                                if (Character.isDigit(charCheck)) {
+                                    numStr += charCheck;
+                                }
                             }
-                        }
-                        try {
-                            channelID = Long.parseLong(numStr);
-                        } catch (NumberFormatException e) {
-                            System.out.println("Wrong input.");
-                            continue;
+                            try {
+                                channelID = Long.parseLong(numStr);
+                                System.out.println("Bot now active in: " + api.getChannelById(channelID));
+                            } catch (NumberFormatException e) {
+                                System.out.println("Wrong input.");
+                                continue;
+                            }
                         }
                     }
                 }
