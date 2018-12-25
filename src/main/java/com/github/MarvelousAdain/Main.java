@@ -26,7 +26,8 @@ public class Main {
 
             switch (command.toLowerCase()) {
                 case "!help":
-                    event.getChannel().sendMessage("Folgende Befehle sind verfügbar: \n!Busse\n!Innos\n!rage");
+                    event.getChannel().sendMessage("Folgende Befehle sind verfügbar: \n!Busse\n!Innos\n!frage" +
+                            "\n!ehrenmann");
                     break;
                 case "!busse":
                     event.getChannel().sendMessage("150 Goldstücke!");
@@ -40,6 +41,10 @@ public class Main {
                     mb.append("<@" + event.getMessageAuthor().getId() + ">");
                     mb.append(", richte diese an Parcival. Und jetzt nerv nicht mehr!");
                     mb.send(event.getChannel());
+                    break;
+                case "!ehrenmann":
+                    event.getChannel().sendMessage("Man sagt Isgaroth sei ein Ehrenmann. Ich bin mir dessen " +
+                            "nicht sicher. Der wahre Ehrenmann bin natürlich immernoch ich.");
                     break;
             }
         });
