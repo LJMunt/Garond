@@ -4,20 +4,42 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.message.MessageBuilder;
 
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
         String token = "NTI2ODcyNjM0MzI0MDI1MzQ0.DwLhMg.MhE5odWzS35c5y_JEa5onex5EIE";
+        long channelID = 0;
+        Scanner scan = new Scanner(System.in);
+        final String VERSION = "1.0";
+        System.out.println("Welcome to Garond Bot " + VERSION);
+        System.out.println("Do you wish to load(1) your last ChannelID or enter(2) a new one?");
+        String choice = scan.next();
+        if (choice.equalsIgnoreCase("1")) {
+            try {
+                channelID = Utilities.loadInformationLong();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            if (choice.equalsIgnoreCase("2")) {
+                System.out.println("Please enter the channel ID from which the Bot should operate.");
+                channelID = Long.parseLong(scan.next());
+                Utilities.saveInformation(channelID);
+                System.out.println("Channel ID has been saved. Now starting up the bot.");
+            } else {
+                System.out.println("Not recognized. Please restart the bot.");
+            }
+        }
+
 
         DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
-
-
-        long greetingChannelID = 526874223868641313L;
+        long finalChannelID = channelID;
         api.addServerMemberJoinListener(event -> {
             String greeting = "<@" + event.getUser().getId() + ">" + " Woher kommst du? Du gehörst weder zu den Schürftruppen, noch zu meinen Leuten. Also?!";
-            api.getServerTextChannelById(greetingChannelID).get().sendMessage(greeting);
+            api.getServerTextChannelById(finalChannelID).get().sendMessage(greeting);
             System.out.println(event.getUser() + " has joined the server.");
         });
 
@@ -49,8 +71,6 @@ public class Main {
             }
         });
 
-        Scanner scan = new Scanner(System.in);
-        long channelID = 526874223868641313L;
         while (true) {
             String line = scan.nextLine();
             String numStr = "";
