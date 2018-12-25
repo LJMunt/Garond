@@ -13,7 +13,11 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        String token = "NTI2ODcyNjM0MzI0MDI1MzQ0.DwLhMg.MhE5odWzS35c5y_JEa5onex5EIE";
+        String token = Secret.getToken();
+        if (token == "0") {
+            System.out.println("The Bot lacks the Token. Shutting off Bot.");
+            System.exit(0);
+        }
         long channelID = 0;
         Scanner scan = new Scanner(System.in);
         final String VERSION = "1.0";
@@ -51,8 +55,8 @@ public class Main {
 
             switch (command.toLowerCase()) {
                 case "!help":
-                    event.getChannel().sendMessage("Folgende Befehle sind verfügbar: \n!Busse\n!Innos\n!frage" +
-                            "\n!ehrenmann");
+                    event.getChannel().sendMessage("Folgende Befehle sind verfügbar: \n!Busse\n!Innos\n!Frage" +
+                            "\n!Ehrenmann");
                     break;
                 case "!busse":
                     event.getChannel().sendMessage("150 Goldstücke!");

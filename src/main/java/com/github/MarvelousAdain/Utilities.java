@@ -30,5 +30,17 @@ public abstract class Utilities {
         return information;
     }
 
+    public static String loadInformationString() throws FileNotFoundException {
+        //Default Channel, when everything goes to shit.
+        Scanner fileReader = new Scanner(new File("src/main/java/com/github/MarvelousAdain/Token"));
+        String information = "";
+        if (fileReader.hasNextLine()) {
+            information = fileReader.nextLine();
+        } else {
+            System.out.println("File is empty, please restart the bot and enter a valid Channel ID.");
+        }
+        return information;
+    }
+
 }
 
