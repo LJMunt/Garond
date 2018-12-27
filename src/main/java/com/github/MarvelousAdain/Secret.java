@@ -9,7 +9,7 @@ public class Secret {
         try {
             Token = Utilities.loadInformationString();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("File not Found");
         }
         return Token;
     }

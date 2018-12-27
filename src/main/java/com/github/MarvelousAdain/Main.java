@@ -50,21 +50,34 @@ public class Main {
             System.out.println(event.getUser() + " has joined the server.");
         });
 
+        api.addServerJoinListener(event -> {
+            System.out.println("the bot has joined a new server: " + event.getServer().getName());
+        });
+
         api.addMessageCreateListener(event -> {
             String command = event.getMessage().getContent();
 
             switch (command.toLowerCase()) {
                 case "!help":
                     event.getChannel().sendMessage("Folgende Befehle sind verfügbar: \n!Busse\n!Innos\n!Frage" +
-                            "\n!Ehrenmann");
+                            "\n!Ehrenmann\n!PB\n!Stream\t(nur für Karstix)\nBei Fragen oder Anregungen, bitte sendet diese an" +
+                            " <@237873960564424704>");
+                    System.out.println("||Help|| " + event.getServer().get().getName() + " - " + event.getServer().get().getCreationTimestamp() +
+                            " - " + event.getMessageAuthor().getDiscriminatedName());
                     break;
                 case "!busse":
                     event.getChannel().sendMessage("150 Goldstücke!");
+                    System.out.println("||Busse|| " + event.getServer().get().getName() + " - " + event.getServer().get().getCreationTimestamp() +
+                            " - " + event.getMessageAuthor().getDiscriminatedName());
                     break;
                 case "!innos":
+                    System.out.println("||Innos|| " + event.getServer().get().getName() + " - " + event.getServer().get().getCreationTimestamp() +
+                            " - " + event.getMessageAuthor().getName());
                     event.getChannel().sendMessage("Bei Innos, du nervst!");
                     break;
                 case "!frage":
+                    System.out.println("||Frage|| " + event.getServer().get().getName() + " - " + event.getServer().get().getCreationTimestamp() +
+                            " - " + event.getMessageAuthor().getDiscriminatedName());
                     MessageBuilder mb = new MessageBuilder();
                     mb.append("Falls du noch weitere Fragen hast, ");
                     mb.append("<@" + event.getMessageAuthor().getId() + ">");
@@ -72,17 +85,32 @@ public class Main {
                     mb.send(event.getChannel());
                     break;
                 case "!ehrenmann":
+                    System.out.println("||Ehrenmann|| " + event.getServer().get().getName() + " - " + event.getServer().get().getCreationTimestamp() +
+                            " - " + event.getMessageAuthor().getDiscriminatedName());
                     event.getChannel().sendMessage("Man sagt Isgaroth sei ein Ehrenmann. Ich bin mir dessen " +
                             "nicht sicher. Der wahre Ehrenmann bin natürlich immernoch ich.");
                     break;
+
+                default:
+                    if (command.startsWith("!stream") ^ command.startsWith("!Stream")) {
+                        System.out.println("||Stream|| " + event.getServer().get().getName() + " - " + event.getServer().get().getCreationTimestamp() +
+                                " - " + event.getMessageAuthor().getDiscriminatedName());
+                        Utilities.announceStream(command, event);
+                    }
+                    if (command.startsWith("!pb") ^ command.startsWith("!Pb") ^ command.startsWith("!PB")) {
+                        System.out.println("||PersonalBest|| " + event.getServer().get().getName() + " - " + event.getServer().get().getCreationTimestamp() +
+                                " - " + event.getMessageAuthor().getDiscriminatedName());
+                        Utilities.announcePersonalBests(event, command);
+                    }
             }
+
         });
 
         while (true) {
             String line = scan.nextLine();
             String numStr = "";
             if (line.startsWith("/")) {
-                if (line.equalsIgnoreCase("/DeveloperInfo")) {
+                if (line.equalsIgnoreCase("/developerinfo")) {
                     System.out.println(api);
                     System.out.println(api.getActivity());
                     System.out.println(api.getAccountType());
@@ -96,26 +124,32 @@ public class Main {
                     if (line.equalsIgnoreCase("/exit")) {
                         System.out.println("shutdown bot? (y/n)");
                         if (scan.nextLine().equalsIgnoreCase("y")) {
+                            api.getServerTextChannelById(channelID).get().sendMessage("Zeit zum Schlafen. Ich werde wiederkehren!");
                             System.exit(0);
                         }
                     } else {
-                        if (line.equalsIgnoreCase("/joinURL")) {
-                            PermissionsBuilder permissionsBuilder = new PermissionsBuilder();
-                            permissionsBuilder.setState(PermissionType.ADMINISTRATOR, PermissionState.ALLOWED);
-                            api.getServerTextChannelById(channelID).get().sendMessage(api.createBotInvite(permissionsBuilder.build()));
+                        if (line.equalsIgnoreCase("/help")) {
+                            System.out.println("The following commands are available \nDeveloperInfo Displays some info." +
+                                    "\nexit  shuts of the bot. \njoinURL displays the Bot Invite (Admin Priv)");
                         } else {
-                            for (int i = 1; i < line.length(); i++) {
-                                char charCheck = line.charAt(i);
-                                if (Character.isDigit(charCheck)) {
-                                    numStr += charCheck;
+                            if (line.equalsIgnoreCase("/joinURL")) {
+                                PermissionsBuilder permissionsBuilder = new PermissionsBuilder();
+                                permissionsBuilder.setState(PermissionType.ADMINISTRATOR, PermissionState.ALLOWED);
+                                api.getServerTextChannelById(channelID).get().sendMessage(api.createBotInvite(permissionsBuilder.build()));
+                            } else {
+                                for (int i = 1; i < line.length(); i++) {
+                                    char charCheck = line.charAt(i);
+                                    if (Character.isDigit(charCheck)) {
+                                        numStr += charCheck;
+                                    }
                                 }
-                            }
-                            try {
-                                channelID = Long.parseLong(numStr);
-                                System.out.println("Bot now active in: " + api.getChannelById(channelID));
-                            } catch (NumberFormatException e) {
-                                System.out.println("Wrong input.");
-                                continue;
+                                try {
+                                    channelID = Long.parseLong(numStr);
+                                    System.out.println("Bot now active in: " + api.getChannelById(channelID));
+                                } catch (NumberFormatException e) {
+                                    System.out.println("Wrong input.");
+                                    continue;
+                                }
                             }
                         }
                     }
@@ -123,6 +157,8 @@ public class Main {
             } else {
                 if (api.getServerTextChannelById(channelID).get().asServerTextChannel().isPresent()) {
                     api.getServerTextChannelById(channelID).get().sendMessage(line);
+                    System.out.println("||Bot-Message|| " + api.getServerTextChannelById(channelID).get().getServer().getName() + " "
+                            + api.getServerTextChannelById(channelID).get().getName());
                 } else {
                     System.out.println("The Channel with the ID " + channelID + " doesn't exist.");
                 }
