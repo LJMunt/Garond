@@ -4,7 +4,9 @@ import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.*;
-import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Random;
 
 public abstract class Utilities {
 
@@ -17,42 +19,77 @@ public abstract class Utilities {
     private static String g2ntr = "46:05 (Any%)";
     private static String dsrp = "36:10 IGT (Any%)";
     private static String dsrb = "1:18:52 IGT (All Bosses)";
+    static final ArrayList<String> QUOTES = new ArrayList<>();
+
+    public static void loadArray() {
+        try {
+            System.out.println("Called loadArray Method");
+            BufferedReader br = new BufferedReader(new InputStreamReader(Utilities.class.getClassLoader().getResourceAsStream("Quotes.txt"), StandardCharsets.UTF_8));
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                QUOTES.add(line);
+            }
+            System.out.println("Quotes.txt loaded, no Problem.");
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void saveInformation(long l) {
         try {
             long fileContent = l;
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/java/com/github/MarvelousAdain/ChannelID"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter("./ChannelID"));
             writer.write(fileContent + "");
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
             return;
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
     }
 
     public static long loadInformationLong() throws FileNotFoundException {
         //Default Channel, when everything goes to shit.
-        long information = 424330978039824405L;
-        Scanner fileReader = new Scanner(new File("src/main/java/com/github/MarvelousAdain/ChannelID"));
-        if (fileReader.hasNextLong()) {
-            information = fileReader.nextLong();
-        } else {
-            System.out.println("File is empty, please restart the bot and enter a valid Channel ID.");
+        long information;
+        try {
+            File fin = new File("./ChannelID");
+            FileInputStream fis = new FileInputStream(fin.getAbsoluteFile());
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+            // (Utilities.class.getClassLoader().getResourceAsStream("ChannelID")
+            String temp;
+            while ((temp = br.readLine()) != null) {
+                information = Long.parseLong(temp);
+                System.out.println("loaded ChannelID");
+                return information;
+            } //else {
+            //System.out.println("File is empty, please restart the bot and enter a valid Channel ID.");
+            //}
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return information;
+        return 526874223868641313L;
     }
 
-    public static String loadInformationString() throws FileNotFoundException {
+    public static String loadInformationString(String path) throws NullPointerException {
         //Default Channel, when everything goes to shit.
-        Scanner fileReader = new Scanner(new File("src/main/java/com/github/MarvelousAdain/Token"));
-        String information = "";
-        if (fileReader.hasNextLine()) {
-            information = fileReader.nextLine();
-        } else {
-            System.out.println("File is empty, please restart the bot and enter a valid Channel ID.");
+        try {
+            System.out.println("Called loadInformationString Method");
+            BufferedReader br = new BufferedReader(new InputStreamReader(Utilities.class.getClassLoader().getResourceAsStream(path)));
+
+            String information;
+            while ((information = br.readLine()) != null) {
+                return information;
+            }
+            System.out.println("Token loaded, no Problem.");
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return information;
+        return "0";
     }
 
     public static void announceStream(String command, MessageCreateEvent event) {
@@ -114,6 +151,28 @@ public abstract class Utilities {
         } else {
             event.getChannel().sendMessage("Bei Innos! Gib ein Spiel an!");
         }
+    }
+
+    public static void announceLeaderboard(String command, MessageCreateEvent event) {
+        MessageBuilder mb = new MessageBuilder();
+        mb.append("Dies ist das Leaderboard derjenigen, die mich getötet haben. Verdammt!");
+        mb.append("\n------------------------------------------------------------------\n");
+        mb.append("*                              Platz  |  Name  | Zeit                                     *\n");
+        mb.append("*                                1.     Valerio   06:52                                     * \n");
+        mb.append("*                               2.     Karstix   07:07                                     * ");
+        mb.append("\n------------------------------------------------------------------\n");
+        mb.send(event.getChannel());
+
+    }
+
+    public static void randomQuote(MessageCreateEvent event) {
+        Random rnd = new Random();
+        String quote = QUOTES.get(rnd.nextInt(QUOTES.size()));
+        MessageBuilder mb = new MessageBuilder();
+        mb.append("Das Zitat des Tages:");
+        mb.appendNewLine();
+        mb.append(quote);
+        mb.send(event.getChannel());
     }
 }
 

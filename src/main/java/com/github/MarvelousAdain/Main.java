@@ -8,13 +8,16 @@ import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.permission.PermissionsBuilder;
 
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
         String token = Secret.getToken();
-        if (token == "0") {
+        System.out.println("Token loaded, no problem: " + token);
+        Utilities.loadArray();
+        if (token == null ^ token == "0") {
             System.out.println("The Bot lacks the Token. Shutting off Bot.");
             System.exit(0);
         }
@@ -27,6 +30,7 @@ public class Main {
         if (choice.equalsIgnoreCase("1")) {
             try {
                 channelID = Utilities.loadInformationLong();
+                System.out.println(channelID);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -35,9 +39,11 @@ public class Main {
                 System.out.println("Please enter the channel ID from which the Bot should operate.");
                 channelID = Long.parseLong(scan.next());
                 Utilities.saveInformation(channelID);
+                System.out.println("Channel ID loaded: " + channelID);
                 System.out.println("Channel ID has been saved. Now starting up the bot.");
             } else {
                 System.out.println("Not recognized. Please restart the bot.");
+                System.exit(1);
             }
         }
 
@@ -54,14 +60,19 @@ public class Main {
             System.out.println("the bot has joined a new server: " + event.getServer().getName());
         });
 
+
         api.addMessageCreateListener(event -> {
             String command = event.getMessage().getContent();
+
+            if (event.isPrivateMessage()) {
+                System.out.println("Private Message:  " + event.getMessage().getContent() + " sent by: " + event.getMessageAuthor().getDiscriminatedName());
+            }
 
             switch (command.toLowerCase()) {
                 case "!help":
                     event.getChannel().sendMessage("Folgende Befehle sind verfügbar: \n!Busse\n!Innos\n!Frage" +
-                            "\n!Ehrenmann\n!PB\n!Stream\t(nur für Karstix)\nBei Fragen oder Anregungen, bitte sendet diese an" +
-                            " <@237873960564424704>");
+                            "\n!Ehrenmann\n!PB\n!Stream\t\t(nur für Karstix)\n!Garond%\n!Zitat\nBei Fragen oder Anregungen, bitte sendet diese an" +
+                            " Sogrim. Alternativ könnt ihr auch einfach dem Bot selbst eine Private Nachricht senden.");
                     System.out.println("||Help|| " + event.getServer().get().getName() + " - " + event.getServer().get().getCreationTimestamp() +
                             " - " + event.getMessageAuthor().getDiscriminatedName());
                     break;
@@ -90,7 +101,14 @@ public class Main {
                     event.getChannel().sendMessage("Man sagt Isgaroth sei ein Ehrenmann. Ich bin mir dessen " +
                             "nicht sicher. Der wahre Ehrenmann bin natürlich immernoch ich.");
                     break;
-
+                case "!garond%":
+                    System.out.println("||Garond%|| " + event.getServer().get().getName() + " - " + event.getServer().get().getCreationTimestamp() +
+                            " - " + event.getMessageAuthor().getDiscriminatedName());
+                    Utilities.announceLeaderboard(command, event);
+                case "!zitat":
+                    System.out.println("||Zitat%|| " + event.getServer().get().getName() + " - " + event.getServer().get().getCreationTimestamp() +
+                            " - " + event.getMessageAuthor().getDiscriminatedName());
+                    Utilities.randomQuote(event);
                 default:
                     if (command.startsWith("!stream") ^ command.startsWith("!Stream")) {
                         System.out.println("||Stream|| " + event.getServer().get().getName() + " - " + event.getServer().get().getCreationTimestamp() +
@@ -155,7 +173,8 @@ public class Main {
                     }
                 }
             } else {
-                if (api.getServerTextChannelById(channelID).get().asServerTextChannel().isPresent()) {
+                System.out.println(api.getServerTextChannelById(channelID));
+                if (api.getChannelById(channelID).isPresent()) {
                     api.getServerTextChannelById(channelID).get().sendMessage(line);
                     System.out.println("||Bot-Message|| " + api.getServerTextChannelById(channelID).get().getServer().getName() + " "
                             + api.getServerTextChannelById(channelID).get().getName());
