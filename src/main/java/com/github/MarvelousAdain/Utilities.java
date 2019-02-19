@@ -1,10 +1,14 @@
 package com.github.MarvelousAdain;
 
+import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -19,29 +23,29 @@ public abstract class Utilities {
     private static String g2ntr = "46:05 (Any%)";
     private static String dsrp = "36:10 IGT (Any%)";
     private static String dsrb = "1:18:52 IGT (All Bosses)";
-    static final ArrayList<String> QUOTES = new ArrayList<>();
+    public static final ArrayList<String> QUOTES = new ArrayList<>();
 
-    public static void loadArray() {
+    public static void loadArray(String path, ArrayList<String> list) {
         try {
             System.out.println("Called loadArray Method");
-            BufferedReader br = new BufferedReader(new InputStreamReader(Utilities.class.getClassLoader().getResourceAsStream("Quotes.txt"), StandardCharsets.UTF_8));
+            BufferedReader br = new BufferedReader(new InputStreamReader(Utilities.class.getClassLoader().getResourceAsStream(path), StandardCharsets.UTF_8));
 
             String line;
             while ((line = br.readLine()) != null) {
-                QUOTES.add(line);
+                list.add(line);
             }
-            System.out.println("Quotes.txt loaded, no Problem.");
+            System.out.println(path + " loaded, no Problem.");
             br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void saveInformation(long l) {
+    public static void saveInformation(long l, String path) {
         try {
             long fileContent = l;
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter("./ChannelID"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(path));
             writer.write(fileContent + "");
             writer.close();
         } catch (IOException e) {
@@ -159,7 +163,7 @@ public abstract class Utilities {
         mb.append("\n------------------------------------------------------------------\n");
         mb.append("*                              Platz  |  Name  | Zeit                                     *\n");
         mb.append("*                                1.     Valerio   06:52                                     * \n");
-        mb.append("*                               2.     Karstix   07:07                                     * ");
+        mb.append("*                                2.     Karstix   07:04                                    * ");
         mb.append("\n------------------------------------------------------------------\n");
         mb.send(event.getChannel());
 
@@ -174,5 +178,47 @@ public abstract class Utilities {
         mb.append(quote);
         mb.send(event.getChannel());
     }
+
+    private static String calculateUptime() {
+        double uptime;
+        DecimalFormat fmt = new DecimalFormat("00.00");
+        RuntimeMXBean rb = ManagementFactory.getRuntimeMXBean();
+        uptime = rb.getUptime();
+        uptime /= 1000;
+        String formattedUptime;
+        if (uptime > 60) {
+            uptime /= 60;
+            formattedUptime = fmt.format(uptime) + " Minutes";
+            if (uptime > 60) {
+                uptime /= 60;
+                formattedUptime = fmt.format(uptime) + " Hours";
+            }
+        } else {
+            formattedUptime = fmt.format(uptime) + " Seconds";
+        }
+        return formattedUptime;
+    }
+
+    public static void announceUptime() {
+        System.out.println(Utilities.calculateUptime());
+    }
+
+    public static void sendPrivateMessage(String substring, DiscordApi api) {
+        System.out.println("Not yet implemented.");
+        /*
+        if (substring.contains("#")) {
+            String user = substring;
+            System.out.println("You are now communicating with: "+user);
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Enter your message.");
+            String message = "";
+            while (message.equalsIgnoreCase("/quit")) {
+                message = scanner.nextLine();
+                MessageBuilder mb = new MessageBuilder();
+                mb.append(message);
+                mb.send(user1);
+            }*/
+    }
 }
+
 
